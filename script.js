@@ -1,8 +1,40 @@
 const imageUrlInput = document.getElementById("image-url");
 const submitBtn = document.getElementById("submit-btn");
 const resultTextarea = document.getElementById("result");
+const categorySelect = document.getElementById("category");
 
 submitBtn.addEventListener("click", async () => {
+  const selectedCategory =
+    categorySelect.options[categorySelect.selectedIndex].text;
+  console.log("카테고리 >> " + selectedCategory);
+
+  const contents = "";
+
+  try {
+    const response = await fetch(config.vectorDBUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Api-Key": config.vectorDBKey,
+      },
+      body: JSON.stringify({
+        command: "extream_search",
+        index_name: "naverx-h-juris-dev",
+        max_count: 1,
+        question: `${selectedCategory}`,
+      }),
+    });
+
+    const data = await response.json();
+    const responseCode = data.code;
+    contents = data.response.result[0].내용;
+
+    console.log(responseCode);
+    console.log(contents);
+  } catch (error) {
+    console.log(error);
+  }
+
   const imageUrl = imageUrlInput.value;
 
   const messages = [
@@ -10,10 +42,13 @@ submitBtn.addEventListener("click", async () => {
     {
       role: "user",
       content: [
-        { type: "text", text: "어떤 사진이야?" },
+        {
+          type: "text",
+          text: contents + "위 내용 참고해서 위 사진을 분석해줘.",
+        },
         {
           type: "image_url",
-          image_url: { url: `data:image/jpeg;base64,${imageUrl}` },
+          image_url: { url: `${imageUrl}` },
         },
       ],
     },
@@ -26,7 +61,7 @@ submitBtn.addEventListener("click", async () => {
     max_tokens: 1000,
   };
 
-  const APIKEY = ""; // your openai api key
+  const APIKEY = config.openAiKey;
 
   const CallGPT = async (gptInput) => {
     try {

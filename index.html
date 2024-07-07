@@ -10,7 +10,10 @@
     <div class="container">
       <h1>Mobile Web Service</h1>
       <div class="form-group">
-        <label for="image-url">Image URL:</label>
+        <select id="category">
+          <option value="cosmetics">화장품</option>
+          <option value="childrens">개인정보보호법</option>
+        </select>
         <input type="text" id="image-url" placeholder="Enter image URL" />
       </div>
       <button id="submit-btn">확인</button>
@@ -19,6 +22,7 @@
         <textarea id="result" rows="50" readonly></textarea>
       </div>
     </div>
+    <script src="key.js"></script>
     <script src="script.js"></script>
   </body>
 </html>

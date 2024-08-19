@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Canary - 카메라</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>사진 촬영</h1>
+      <video id="camera" autoplay></video>
+      <button id="captureButton">촬영</button>
+      <div id="response"></div>
+    </div>
+    <script>
+      const video = document.getElementById("camera");
+
+      // 카메라 활성화
+      navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+        video.srcObject = stream;
+      });
+
+      document
+        .getElementById("captureButton")
+        .addEventListener("click", async () => {
+          const canvas = document.createElement("canvas");
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          canvas.getContext("2d").drawImage(video, 0, 0);
+          const binaryData = canvas.toDataURL("image/jpeg").split(",")[1]; // Base64 인코딩 제거
+
+          // AWS Lambda로 전송
+          const response = await fetch(
+            "https://gwud4lb2g8.execute-api.ap-northeast-2.amazonaws.com/dev/",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/jpg",
+                "x-api-key": "1wTctbDP0p2MHf3J664eu4OEHxMCNmhj4IOAbdUV",
+              },
+              body: binaryData,
+            }
+          );
+
+          const result = await response.json();
+          document.getElementById("response").innerText =
+            JSON.stringify(result);
+        });
+    </script>
+  </body>
+</html>

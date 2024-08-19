@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Canary - 업로드</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>이미지 업로드</h1>
+      <input type="file" id="fileInput" accept="image/*" />
+      <button id="uploadButton">업로드</button>
+      <div id="response"></div>
+    </div>
+    <script>
+      document
+        .getElementById("uploadButton")
+        .addEventListener("click", async () => {
+          const fileInput = document.getElementById("fileInput");
+          const file = fileInput.files[0];
+
+          if (!file) {
+            alert("이미지를 선택해주세요.");
+            return;
+          }
+
+          const reader = new FileReader();
+          reader.onloadend = async () => {
+            const binaryData = reader.result.split(",")[1]; // Base64 인코딩 제거
+
+            // AWS Lambda로 전송
+            const response = await fetch(
+              "https://gwud4lb2g8.execute-api.ap-northeast-2.amazonaws.com/dev/",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/jpg",
+                  "x-api-key": "1wTctbDP0p2MHf3J664eu4OEHxMCNmhj4IOAbdUV",
+                },
+                body: binaryData,
+              }
+            );
+
+            const result = await response.json();
+            document.getElementById("response").innerText =
+              JSON.stringify(result);
+          };
+
+          reader.readAsDataURL(file);
+        });
+    </script>
+  </body>
+</html>

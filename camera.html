@@ -30,22 +30,36 @@
           canvas.getContext("2d").drawImage(video, 0, 0);
           const binaryData = canvas.toDataURL("image/jpeg").split(",")[1]; // Base64 인코딩 제거
 
-          // AWS Lambda로 전송
-          const response = await fetch(
+          fetch(
             "https://gwud4lb2g8.execute-api.ap-northeast-2.amazonaws.com/dev/",
             {
               method: "POST",
               headers: {
+                Accept: "*/*",
+                "Accept-Encoding": "gzip, deflate, br",
+                Connection: "keep-alive",
                 "Content-Type": "application/jpg",
                 "x-api-key": "1wTctbDP0p2MHf3J664eu4OEHxMCNmhj4IOAbdUV",
               },
               body: binaryData,
             }
-          );
+          )
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error("파일 업로드에 실패했습니다.");
+              }
 
-          const result = await response.json();
-          document.getElementById("response").innerText =
-            JSON.stringify(result);
+              console.log(response);
+
+              document.getElementById("response").innerText =
+                JSON.stringify(response);
+            })
+            .then((data) => {
+              console.log("파일 업로드 성공:", data);
+            })
+            .catch((error) => {
+              console.error("오류 발생:", error);
+            });
         });
     </script>
   </body>

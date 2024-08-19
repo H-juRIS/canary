@@ -11,7 +11,11 @@
       <h1>이미지 업로드</h1>
       <input type="file" id="fileInput" accept="image/*" />
       <button id="uploadButton">업로드</button>
-      <div id="response"></div>
+      <div id="response">
+        <span id="product"></span>
+        <span id="status"></span>
+        <hr />
+      </div>
     </div>
     <script>
       document
@@ -24,6 +28,16 @@
             alert("이미지를 선택해주세요.");
             return;
           }
+
+          const responseDiv = document.getElementById("response");
+
+          // 'product'와 'status' ID를 가진 span 요소 텍스트 지우기
+          document.getElementById("product").innerText = "";
+          document.getElementById("status").innerText = "";
+
+          // div 안에 있는 모든 div 요소 제거
+          const innerDivs = responseDiv.querySelectorAll("div");
+          innerDivs.forEach((innerDiv) => innerDiv.remove());
 
           const myHeaders = new Headers();
           myHeaders.append(
@@ -44,13 +58,142 @@
             requestOptions
           )
             .then((response) => response.text())
-            .then(
-              (result) =>
-                (document.getElementById("response").innerText =
-                  JSON.stringify(result))
-            )
+            .then((result) => getResult(result))
             .catch((error) => console.error(error));
         });
+
+      function getResult(resultString) {
+        const result = JSON.parse(resultString);
+
+        const bodyString = result.body;
+        const body = JSON.parse(bodyString);
+
+        // 제품군 출력
+        document.getElementById("product").innerText = JSON.stringify(
+          body.product.replace(/"/g, "")
+        );
+
+        // 통과/반려 여부 출력
+        document.getElementById("status").innerText = JSON.stringify(
+          body.answer == true
+            ? "통과".replace(/"/g, "")
+            : "반려".replace(/"/g, "")
+        );
+
+        // 항목별 결과 출력
+        const mandatories = body.mandatories;
+        const outputContainer = document.getElementById("response");
+
+        for (let i = 0; i < Object.keys(mandatories).length; i++) {
+          const item = mandatories[`${i}`];
+
+          const label = `${JSON.stringify(item.label)}`.replace(/"/g, "");
+          const content = `${JSON.stringify(item.content)}`.replace(/"/g, "");
+          const insufficient = `${JSON.stringify(item.insufficient)}`.replace(
+            /"/g,
+            ""
+          );
+
+          const container = document.querySelector("#response"); // 아이템을 추가할 부모 컨테이너
+          const newItem = createItem(
+            JSON.stringify(item.status),
+            label,
+            content,
+            insufficient
+          );
+          container.appendChild(newItem);
+        }
+      }
+    </script>
+
+    <script>
+      function toggleInsufficient(element) {
+        const contentInfo = element.querySelector(".item-content");
+        const insufficientInfo = element.querySelector(".item-insufficient");
+        if (
+          insufficientInfo.style.display === "none" ||
+          insufficientInfo.style.display === ""
+        ) {
+          contentInfo.style.display = "block"; // 내용 표시
+          insufficientInfo.style.display = "block"; // 내용 표시
+        } else {
+          contentInfo.style.display = "none"; // 내용 숨김
+          insufficientInfo.style.display = "none"; // 내용 숨김
+        }
+      }
+
+      function createItem(status, label, content, insufficient) {
+        // item 요소 생성
+        const item = document.createElement("div");
+        item.className = "item";
+
+        if (status == "2") {
+          item.onclick = function () {
+            toggleInsufficient(this);
+          };
+        }
+
+        // 첫 번째 item-row 생성
+        const itemRow1 = document.createElement("div");
+        itemRow1.className = "item-row";
+
+        let className = "";
+
+        if (status == "0") {
+          status = "정상";
+          className = "normal";
+        } else if (status == "1") {
+          status = "누락";
+          className = "missing";
+        } else {
+          status = "부족";
+          className = "error";
+        }
+
+        // 상태 span 생성
+        const statusSpan = document.createElement("span");
+        statusSpan.className = `item-status ${className}`;
+        statusSpan.innerText = status;
+
+        // 제품명 span 생성
+        const labelSpan = document.createElement("span");
+        labelSpan.className = "item-label";
+        labelSpan.innerText = label;
+
+        // 첫 번째 item-row에 요소 추가
+        itemRow1.appendChild(statusSpan);
+        itemRow1.appendChild(labelSpan);
+        item.appendChild(itemRow1);
+
+        // 두 번째 item-row 생성
+        const itemRow2 = document.createElement("div");
+        itemRow2.className = "item-row";
+
+        // 내용 span 생성
+        const contentSpan = document.createElement("span");
+        contentSpan.className = "item-content";
+        contentSpan.innerText = content;
+
+        // 두 번째 item-row에 요소 추가
+        itemRow2.appendChild(contentSpan);
+        item.appendChild(itemRow2);
+
+        // 세 번째 item-row 생성
+        const itemRow3 = document.createElement("div");
+        itemRow3.className = "item-row";
+
+        // 부족 span 생성
+        const insufficientSpan = document.createElement("span");
+        insufficientSpan.className = "item-insufficient";
+        insufficientSpan.innerText = insufficient;
+
+        // 세 번째 item-row에 요소 추가
+        itemRow3.appendChild(insufficientSpan);
+        item.appendChild(itemRow3);
+
+        // 최종적으로 생성된 item을 반환
+        return item;
+      }
     </script>
   </body>
 </html>

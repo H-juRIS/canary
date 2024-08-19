@@ -1,28 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mobile Web Service</title>
+    <title>Canary - 홈</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
     <div class="container">
-      <h1>Mobile Web Service</h1>
-      <div class="form-group">
-        <select id="category">
-          <option value="cosmetics">화장품</option>
-          <option value="childrens">개인정보보호법</option>
-        </select>
-        <input type="text" id="image-url" placeholder="Enter image URL" />
-      </div>
-      <button id="submit-btn">확인</button>
-      <div class="result-container">
-        <label for="result">Result:</label>
-        <textarea id="result" rows="50" readonly></textarea>
-      </div>
+      <h1>Canary</h1>
+      <button onclick="location.href='camera.html'">사진 촬영</button>
+      <button onclick="location.href='upload.html'">업로드</button>
     </div>
-    <script src="key/key.js"></script>
-    <script src="script.js"></script>
   </body>
 </html>

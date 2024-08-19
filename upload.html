@@ -12,8 +12,8 @@
       <input type="file" id="fileInput" accept="image/*" />
       <button id="uploadButton">업로드</button>
       <div id="response">
-        <span id="product"></span>
-        <span id="status"></span>
+        <!-- <span id="product"></span>
+        <span id="status"></span> -->
         <hr />
       </div>
     </div>
@@ -32,8 +32,8 @@
           const responseDiv = document.getElementById("response");
 
           // 'product'와 'status' ID를 가진 span 요소 텍스트 지우기
-          document.getElementById("product").innerText = "";
-          document.getElementById("status").innerText = "";
+          // document.getElementById("product").innerText = "";
+          // document.getElementById("status").innerText = "";
 
           // div 안에 있는 모든 div 요소 제거
           const innerDivs = responseDiv.querySelectorAll("div");
@@ -69,16 +69,20 @@
         const body = JSON.parse(bodyString);
 
         // 제품군 출력
+        /*
         document.getElementById("product").innerText = JSON.stringify(
           body.product.replace(/"/g, "")
         );
+        */
 
         // 통과/반려 여부 출력
+        /*
         document.getElementById("status").innerText = JSON.stringify(
           body.answer == true
             ? "통과".replace(/"/g, "")
             : "반려".replace(/"/g, "")
         );
+        */
 
         // 항목별 결과 출력
         const mandatories = body.mandatories;

@@ -37,7 +37,7 @@
         const context = canvas.getContext("2d");
         context.drawImage(cameraPreview, 0, 0, canvas.width, canvas.height);
 
-        const base64Image = canvas.toDataURL("image/jpg");
+        const base64Image = canvas.toDataURL("image/jpeg");
         downloadImage(base64Image);
 
         const myHeaders = new Headers();
@@ -70,7 +70,7 @@
       function downloadImage(base64Image) {
         const link = document.createElement("a");
         link.href = base64Image;
-        link.download = "captured_image.jpg"; // 원하는 파일 이름
+        link.download = "captured_image"; // 원하는 파일 이름
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);

@@ -17,9 +17,11 @@
       const video = document.getElementById("camera");
 
       // 카메라 활성화
-      navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
-        video.srcObject = stream;
-      });
+      navigator.mediaDevices
+        .getUserMedia({ video: { facingMode: { exact: "environment" } } })
+        .then((stream) => {
+          video.srcObject = stream;
+        });
 
       document
         .getElementById("captureButton")

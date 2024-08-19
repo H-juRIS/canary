@@ -9,56 +9,72 @@
   <body>
     <div class="container">
       <h1>사진 촬영</h1>
-      <video id="camera" autoplay></video>
-      <button id="captureButton">촬영</button>
+      <video id="camera-preview" class="camera-preview" autoplay></video>
+      <div class="button-container">
+        <button id="capture-button">촬영</button>
+      </div>
       <hr />
       <div id="response"></div>
     </div>
     <script>
-      const video = document.getElementById("camera");
+      const cameraPreview = document.getElementById("camera-preview");
+      const captureButton = document.getElementById("capture-button");
 
       // 카메라 활성화
       navigator.mediaDevices
         .getUserMedia({ video: { facingMode: { exact: "environment" } } })
         .then((stream) => {
-          video.srcObject = stream;
+          cameraPreview.srcObject = stream;
+        })
+        .catch((error) => {
+          console.error("Error accessing camera:", error);
         });
 
-      document
-        .getElementById("captureButton")
-        .addEventListener("click", async () => {
-          const canvas = document.createElement("canvas");
-          canvas.width = video.videoWidth;
-          canvas.height = video.videoHeight;
-          canvas.getContext("2d").drawImage(video, 0, 0);
-          const binaryData = canvas.toDataURL("image/jpeg").split(",")[1]; // Base64 인코딩 제거
+      captureButton.addEventListener("click", async () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = cameraPreview.videoWidth;
+        canvas.height = cameraPreview.videoHeight;
+        const context = canvas.getContext("2d");
+        context.drawImage(cameraPreview, 0, 0, canvas.width, canvas.height);
 
-          const myHeaders = new Headers();
-          myHeaders.append(
-            "x-api-key",
-            "1wTctbDP0p2MHf3J664eu4OEHxMCNmhj4IOAbdUV"
-          );
-          myHeaders.append("Content-Type", "application/jpg");
+        const base64Image = canvas.toDataURL("image/jpg");
+        downloadImage(base64Image);
 
-          const requestOptions = {
-            method: "POST",
-            headers: myHeaders,
-            body: binaryData,
-            redirect: "follow",
-          };
+        const myHeaders = new Headers();
+        myHeaders.append(
+          "x-api-key",
+          "1wTctbDP0p2MHf3J664eu4OEHxMCNmhj4IOAbdUV"
+        );
+        myHeaders.append("Content-Type", "application/jpg");
 
-          fetch(
-            "https://gwud4lb2g8.execute-api.ap-northeast-2.amazonaws.com/dev/",
-            requestOptions
+        const requestOptions = {
+          method: "POST",
+          headers: myHeaders,
+          body: base64Image,
+          redirect: "follow",
+        };
+
+        fetch(
+          "https://gwud4lb2g8.execute-api.ap-northeast-2.amazonaws.com/dev/",
+          requestOptions
+        )
+          .then((response) => response.text())
+          .then(
+            (result) =>
+              (document.getElementById("response").innerText =
+                JSON.stringify(result))
           )
-            .then((response) => response.text())
-            .then(
-              (result) =>
-                (document.getElementById("response").innerText =
-                  JSON.stringify(result))
-            )
-            .catch((error) => console.error(error));
-        });
+          .catch((error) => console.error(error));
+      });
+
+      function downloadImage(base64Image) {
+        const link = document.createElement("a");
+        link.href = base64Image;
+        link.download = "captured_image.jpg"; // 원하는 파일 이름
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     </script>
   </body>
 </html>

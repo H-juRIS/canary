@@ -7,6 +7,13 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
+    <div id="loadingModal">
+      <div class="modal-content">
+        <!-- <img src="spinner.gif" alt="Loading..." /> -->
+        <!-- 스피너 이미지 경로 -->
+        <div id="loadingText">분석 중...</div>
+      </div>
+    </div>
     <div class="container">
       <h1>이미지 업로드</h1>
       <input type="file" id="fileInput" accept="image/*" multiple />
@@ -15,10 +22,19 @@
       <div id="response"></div>
     </div>
     <script>
+      const messages = ["분석 중", "분석 중.", "분석 중..", "분석 중..."];
+      let index = 0;
+      const textInterval = setInterval(() => {
+        loadingText.textContent = messages[index];
+        index = (index + 1) % messages.length;
+      }, 500);
+
       /* 업로드 버튼 누르고 API 호출 */
       document
         .getElementById("uploadButton")
         .addEventListener("click", async () => {
+          loadingModal.style.display = "flex";
+
           const fileInput = document.getElementById("fileInput");
           const file = fileInput.files[0];
 
@@ -51,10 +67,13 @@
           )
             .then((response) => response.text())
             .then((result) => getResult(result))
-            .catch((error) => alert("오류\n\n" + error));
+            .catch((error) => alert("오류\n\n" + error))
+            .finally(() => clearInterval(textInterval));
         });
 
       function getResult(resultString) {
+        loadingModal.style.display = "none";
+
         const result = JSON.parse(resultString);
         const bodyString = result.body;
         const body = JSON.parse(bodyString);

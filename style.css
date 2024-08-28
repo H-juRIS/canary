@@ -61,6 +61,7 @@ body {
   font-size: 13px;
   align-items: flex-start;
   margin-bottom: 12px;
+  justify-content: center;
 }
 
 .image-container {

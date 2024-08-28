@@ -106,7 +106,7 @@
           };
 
           fetch(
-            "https://gwud4lb2g8.execute-api.ap-northeast-2.amazonaws.com/dev/?category=" +
+            "https://gwud4lb2g8.execute-api.ap-northeast-2.amazonaws.com/dev?category=" +
               paramValue,
             requestOptions
           )
@@ -123,6 +123,8 @@
         const result = JSON.parse(resultString);
         const bodyString = result.body;
         const body = JSON.parse(bodyString);
+
+        console.log(body);
 
         const mandatories = body.mandatories;
         const outputContainer = document.getElementById("response");
@@ -150,7 +152,7 @@
           });
         }
 
-        // 부족 > 누락 > 정상 순으로 정렬
+        // 누락 > 부족 > 정상 순으로 정렬
         itemMap.sort((a, b) => b.key - a.key);
 
         const container = document.querySelector("#response");
@@ -181,15 +183,11 @@
         const item = document.createElement("div");
         item.className = "item";
 
-        //if (status == "2") {
+        //if (status == "1") {
         item.onclick = function () {
           toggleInsufficient(this);
         };
         //}
-
-        // 첫 번째 item-row 생성
-        const itemRow1 = document.createElement("div");
-        itemRow1.className = "item-row";
 
         let className = "";
 
@@ -197,12 +195,16 @@
           status = "정상";
           className = "normal";
         } else if (status == "1") {
-          status = "누락";
-          className = "missing";
-        } else {
           status = "부족";
           className = "error";
+        } else {
+          status = "누락";
+          className = "missing";
         }
+
+        // 첫 번째 item-row 생성
+        const itemRow1 = document.createElement("div");
+        itemRow1.className = "item-row";
 
         // 상태 span 생성
         const statusSpan = document.createElement("span");

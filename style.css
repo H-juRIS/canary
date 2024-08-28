@@ -162,8 +162,8 @@ input[type="file"] {
 #response {
   display: flex;
   flex-wrap: wrap;
-  flex-direction: row;
-  justify-content: space-between;
+  flex-direction: column;
+  /* justify-content: space-between; */
 }
 
 .item {
@@ -177,7 +177,7 @@ input[type="file"] {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  width: 100px;
+  /* width: 100px; */
   height: 100px;
 }
 
@@ -229,6 +229,7 @@ input[type="file"] {
   display: none; /* 기본적으로 숨김 상태 */
   color: #c62828; /* 어두운 핑크색 */
   font-style: italic;
+  text-align: left;
 }
 
 #loadingModal {

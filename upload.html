@@ -16,6 +16,7 @@
       <div class="back-button" onclick="window.history.back();">
         &lt; &nbsp; 뒤로가기
       </div>
+      <h3 id="category-title"></h3>
       <span id="info"
         >분석하고자 하는 제품의 정보가 담긴 이미지를 업로드하세요.</span
       >
@@ -51,6 +52,20 @@
       // 파라미터 값 읽기
       const paramValue = getParameterByName("category");
       console.log(paramValue);
+
+      let title =
+        paramValue === "cosmetic"
+          ? "🧴 화장품"
+          : paramValue === "electric"
+          ? "⚡ 전기제품"
+          : paramValue === "child"
+          ? "🧒 아동제품"
+          : paramValue === "infant"
+          ? "👶🏻 유아제품"
+          : "";
+
+      document.getElementById("category-title").innerText =
+        title + " 표시사항 오류 점검";
 
       /* 프리로더 설정 */
       const messages = ["분석 중", "분석 중.", "분석 중..", "분석 중..."];

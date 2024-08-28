@@ -8,9 +8,28 @@
   </head>
   <body>
     <div class="container">
-      <h1>Canary</h1>
-      <button onclick="location.href='camera.html'">사진 촬영</button>
-      <button onclick="location.href='upload.html'">업로드</button>
+      <h1>표시사항 오류 점검</h1>
+      <div class="category-container">
+        <button class="category-button" data-category="cosmetic">화장품</button>
+        <button class="category-button" data-category="electric">
+          전기제품
+        </button>
+        <button class="category-button" data-category="infant">
+          유아제품 (14세 이상)
+        </button>
+        <button class="category-button" data-category="child">
+          아동제품 (14세 미만)
+        </button>
+      </div>
     </div>
+    <script>
+      document.querySelectorAll(".category-button").forEach((button) => {
+        button.onclick = function () {
+          const paramValue = this.getAttribute("data-category");
+          window.location.href =
+            "upload.html?category=" + encodeURIComponent(paramValue);
+        };
+      });
+    </script>
   </body>
 </html>

@@ -9,19 +9,50 @@
   <body>
     <div id="loadingModal">
       <div class="modal-content">
-        <!-- <img src="spinner.gif" alt="Loading..." /> -->
-        <!-- 스피너 이미지 경로 -->
         <div id="loadingText">분석 중...</div>
       </div>
     </div>
     <div class="container">
-      <h1>이미지 업로드</h1>
-      <input type="file" id="fileInput" accept="image/*" multiple />
-      <button id="uploadButton">업로드</button>
+      <div class="back-button" onclick="window.history.back();">
+        &lt; &nbsp; 뒤로가기
+      </div>
+      <span id="info"
+        >분석하고자 하는 제품의 정보가 담긴 이미지를 업로드하세요.</span
+      >
+      <span id="info">(최대 10장, 용량 10MB 미만 준수)</span>
+      <div class="image-container">
+        <label for="file-upload" class="file-upload"> + </label>
+        <input id="file-upload" type="file" multiple accept="image/*" />
+        <div id="image-preview" class="image-preview"></div>
+      </div>
+      <button id="uploadButton">분석하기</button>
       <hr />
       <div id="response"></div>
     </div>
     <script>
+      /* 카테고리 파라미터 값 읽기 */
+      function getParameterByName(name) {
+        const url = window.location.href;
+        const nameWithEqual = name + "=";
+        const start = url.indexOf(nameWithEqual);
+
+        if (start === -1) return null;
+
+        const end = url.indexOf("&", start);
+
+        return decodeURIComponent(
+          url.substring(
+            start + nameWithEqual.length,
+            end === -1 ? url.length : end
+          )
+        );
+      }
+
+      // 파라미터 값 읽기
+      const paramValue = getParameterByName("category");
+      console.log(paramValue);
+
+      /* 프리로더 설정 */
       const messages = ["분석 중", "분석 중.", "분석 중..", "분석 중..."];
       let index = 0;
       const textInterval = setInterval(() => {
@@ -33,15 +64,15 @@
       document
         .getElementById("uploadButton")
         .addEventListener("click", async () => {
-          loadingModal.style.display = "flex";
-
-          const fileInput = document.getElementById("fileInput");
+          const fileInput = document.getElementById("file-upload");
           const file = fileInput.files[0];
 
           if (!file) {
             alert("이미지를 선택해주세요.");
             return;
           }
+
+          loadingModal.style.display = "flex";
 
           const responseDiv = document.getElementById("response");
           const innerDivs = responseDiv.querySelectorAll("div");
@@ -62,7 +93,8 @@
           };
 
           fetch(
-            "https://gwud4lb2g8.execute-api.ap-northeast-2.amazonaws.com/dev/",
+            "https://gwud4lb2g8.execute-api.ap-northeast-2.amazonaws.com/dev/?category=" +
+              paramValue,
             requestOptions
           )
             .then((response) => response.text())
@@ -71,6 +103,7 @@
             .finally(() => clearInterval(textInterval));
         });
 
+      /* 응답 결과 출력 */
       function getResult(resultString) {
         loadingModal.style.display = "none";
 
@@ -112,9 +145,8 @@
           container.appendChild(item.value);
         });
       }
-    </script>
 
-    <script>
+      /* 누락/부족 컴포넌트 클릭 이벤트 */
       function toggleInsufficient(element) {
         const contentInfo = element.querySelector(".item-content");
         const insufficientInfo = element.querySelector(".item-insufficient");
@@ -130,16 +162,17 @@
         }
       }
 
+      /* 컴포넌트 생성 */
       function createItem(status, label, content, insufficient) {
         // item 요소 생성
         const item = document.createElement("div");
         item.className = "item";
 
-        if (status == "2") {
-          item.onclick = function () {
-            toggleInsufficient(this);
-          };
-        }
+        //if (status == "2") {
+        item.onclick = function () {
+          toggleInsufficient(this);
+        };
+        //}
 
         // 첫 번째 item-row 생성
         const itemRow1 = document.createElement("div");
@@ -202,6 +235,46 @@
         // 최종적으로 생성된 item을 반환
         return item;
       }
+    </script>
+    <script>
+      document
+        .getElementById("file-upload")
+        .addEventListener("change", function (event) {
+          const files = event.target.files;
+          const imagePreview = document.getElementById("image-preview");
+
+          Array.from(files).forEach((file) => {
+            if (file) {
+              const maxSize = 10 * 1024 * 1024;
+              if (file.size >= maxSize) {
+                alert("10MB 미만의 이미지만 업로드가 가능합니다.");
+                return;
+              }
+            }
+
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+              const img = document.createElement("img");
+              img.src = e.target.result;
+
+              const button = document.createElement("button");
+              button.innerHTML = "×";
+              button.onclick = function () {
+                img.remove();
+                button.remove();
+              };
+
+              const wrapper = document.createElement("div");
+              wrapper.style.position = "relative";
+              wrapper.appendChild(img);
+              wrapper.appendChild(button);
+              imagePreview.appendChild(wrapper);
+            };
+
+            reader.readAsDataURL(file);
+          });
+        });
     </script>
   </body>
 </html>

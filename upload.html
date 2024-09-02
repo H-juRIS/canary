@@ -9,7 +9,7 @@
   <body>
     <div id="loadingModal">
       <div class="modal-content">
-        <div id="loadingText">분석 중...</div>
+        <div id="loadingText"></div>
       </div>
     </div>
     <div class="container">
@@ -18,7 +18,7 @@
       </div>
       <h3 id="category-title"></h3>
       <span id="info">제품 정보가 담긴 이미지를 업로드하세요.</span>
-      <span id="info">(최대 10장, 용량 10MB 미만 준수)</span>
+      <span id="info">(1장만, 용량 10MB 미만 준수)</span>
       <div class="image-container">
         <label for="file-upload" class="file-upload"> + </label>
         <input id="file-upload" type="file" multiple accept="image/*" />
@@ -26,6 +26,12 @@
       </div>
       <button id="uploadButton">오류 점검</button>
       <hr />
+      <div id="result">
+        <span>결과 : </span>
+        <span id="product"></span>
+        <span id="answer"></span>
+        <span id="kcno"></span>
+      </div>
       <div id="response"></div>
     </div>
     <script>
@@ -85,11 +91,26 @@
             return;
           }
 
+          // Preloader 표시
           loadingModal.style.display = "flex";
 
+          // 결과 화면 1 초기화
+          const resultDiv = document.getElementById("result");
+          resultDiv.querySelector("#product").innerText = "";
+          resultDiv.querySelector("#answer").innerText = "";
+          resultDiv.querySelector("#kcno").innerText = "";
+
+          // 결과 화면 2 초기화
           const responseDiv = document.getElementById("response");
           const innerDivs = responseDiv.querySelectorAll("div");
           innerDivs.forEach((innerDiv) => innerDiv.remove());
+
+          const classifications =
+            responseDiv.querySelectorAll(".classification");
+          classifications.forEach((classification) => classification.remove());
+
+          const hrs = responseDiv.querySelectorAll("hr");
+          hrs.forEach((hr) => hr.remove());
 
           const myHeaders = new Headers();
           myHeaders.append(
@@ -121,13 +142,23 @@
         loadingModal.style.display = "none";
 
         const result = JSON.parse(resultString);
+
+        console.log(result);
+
         const bodyString = result.body;
         const body = JSON.parse(bodyString);
 
-        console.log(body);
+        // product, answer, kcno 처리
+        document.querySelector("#product").innerText = body.product + " | ";
+        document.querySelector("#answer").innerText =
+          body.answer == true ? "적합" : "부적합";
+        if (getParameterByName("category") != "cosmetic")
+          document.querySelector("#kcno").innerText =
+            " | " +
+            JSON.stringify(JSON.parse(result.kcno).content).replace(/"/g, "");
 
+        // 필수 요소 처리
         const mandatories = body.mandatories;
-        const outputContainer = document.getElementById("response");
 
         let itemMap = [];
 
@@ -142,9 +173,9 @@
           );
 
           itemMap.push({
-            key: JSON.stringify(item.status),
+            key: JSON.parse(item.status),
             value: createItem(
-              JSON.stringify(item.status),
+              JSON.parse(item.status),
               label,
               content,
               insufficient
@@ -156,25 +187,44 @@
         itemMap.sort((a, b) => b.key - a.key);
 
         const container = document.querySelector("#response");
+        let prevKey = null;
+
         itemMap.forEach((item) => {
+          // key가 변경되었을 때만 h3 태그 추가
+          if (item.key !== prevKey) {
+            const titleText =
+              item.key == "0"
+                ? "정상"
+                : item.key == "1"
+                ? "부족"
+                : item.key == "2"
+                ? "누락"
+                : "";
+            const id =
+              item.key == "0"
+                ? "normal"
+                : item.key == "1"
+                ? "error"
+                : item.key == "2"
+                ? "missing"
+                : "";
+
+            const h3 = document.createElement("h3");
+            h3.className = "classification";
+            h3.id = id;
+            h3.textContent = titleText;
+            container.appendChild(h3);
+
+            const hr = document.createElement("hr");
+            hr.style = "width: 100%;";
+            container.appendChild(hr);
+
+            // 이전 key 업데이트
+            prevKey = item.key;
+          }
+
           container.appendChild(item.value);
         });
-      }
-
-      /* 누락/부족 컴포넌트 클릭 이벤트 */
-      function toggleInsufficient(element) {
-        const contentInfo = element.querySelector(".item-content");
-        const insufficientInfo = element.querySelector(".item-insufficient");
-        if (
-          insufficientInfo.style.display === "none" ||
-          insufficientInfo.style.display === ""
-        ) {
-          contentInfo.style.display = "block"; // 내용 표시
-          insufficientInfo.style.display = "block"; // 내용 표시
-        } else {
-          contentInfo.style.display = "none"; // 내용 숨김
-          insufficientInfo.style.display = "none"; // 내용 숨김
-        }
       }
 
       /* 컴포넌트 생성 */
@@ -183,23 +233,19 @@
         const item = document.createElement("div");
         item.className = "item";
 
-        //if (status == "1") {
-        item.onclick = function () {
-          toggleInsufficient(this);
-        };
-        //}
-
         let className = "";
 
-        if (status == "0") {
+        if (status == 0) {
           status = "정상";
           className = "normal";
-        } else if (status == "1") {
+        } else if (status == 1) {
           status = "부족";
           className = "error";
-        } else {
+        } else if (status == 2) {
           status = "누락";
           className = "missing";
+        } else {
+          console.log(status);
         }
 
         // 첫 번째 item-row 생성

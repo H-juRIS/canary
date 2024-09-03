@@ -151,11 +151,24 @@
         // product, answer, kcno 처리
         document.querySelector("#product").innerText = body.product + " | ";
         document.querySelector("#answer").innerText =
-          body.answer == true ? "적합" : "부적합";
-        if (getParameterByName("category") != "cosmetic")
-          document.querySelector("#kcno").innerText =
-            " | " +
-            JSON.stringify(JSON.parse(result.kcno).content).replace(/"/g, "");
+          body.answer == "true" ? "적합" : "부적합";
+        if (getParameterByName("category") != "cosmetic") {
+          document.querySelector("#kcno").innerText = JSON.stringify(
+            JSON.parse(result.kcno).content
+          ).replace(/"/g, "");
+
+          const status = JSON.stringify(JSON.parse(result.kcno).status).replace(
+            /"/g,
+            ""
+          );
+
+          if (status == "0")
+            document.querySelector("#kcno").style =
+              "color: green; text-decoration: underline;";
+          else
+            document.querySelector("#kcno").style =
+              "color: red; text-decoration: underline;";
+        }
 
         // 필수 요소 처리
         const mandatories = body.mandatories;

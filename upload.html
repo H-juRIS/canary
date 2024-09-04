@@ -86,22 +86,6 @@
           const fileInput = document.getElementById("file-upload");
           const file = fileInput.files[0];
 
-          const base64Image = "";
-
-          if (file) {
-            const reader = new FileReader();
-
-            reader.onloadend = function () {
-              base64Image = reader.result;
-              console.log(base64Image); // Base64 인코딩된 문자열
-            };
-
-            reader.readAsDataURL(file); // 파일을 Data URL로 읽기
-          } else {
-            alert("이미지를 선택해주세요.");
-            return;
-          }
-
           // Preloader 표시
           loadingModal.style.display = "flex";
 
@@ -123,33 +107,44 @@
           const hrs = responseDiv.querySelectorAll("hr");
           hrs.forEach((hr) => hr.remove());
 
+          /* 요청 */
           const myHeaders = new Headers();
           myHeaders.append(
             "x-api-key",
             "1wTctbDP0p2MHf3J664eu4OEHxMCNmhj4IOAbdUV"
           );
+          if (file) {
+            const reader = new FileReader();
 
-          const fileType = file.name.split(".").pop();
-          console.log("UPLOAD IMAGE TYPE" + fileType);
+            reader.onloadend = function () {
+              const base64Image = reader.result; // Base64 인코딩된 문자열
+              console.log(base64Image); // 콘솔에 출력
 
-          myHeaders.append("Content-Type", "image/" + fileType);
+              myHeaders.append("Content-Type", "image/jpeg");
 
-          const requestOptions = {
-            method: "POST",
-            headers: myHeaders,
-            body: base64Image,
-            redirect: "follow",
-          };
+              const requestOptions = {
+                method: "POST",
+                headers: myHeaders,
+                body: base64Image,
+                redirect: "follow",
+              };
 
-          fetch(
-            "https://gwud4lb2g8.execute-api.ap-northeast-2.amazonaws.com/dev?category=" +
-              paramValue,
-            requestOptions
-          )
-            .then((response) => response.text())
-            .then((result) => getResult(result))
-            .catch((error) => alert("오류\n\n" + error))
-            .finally(() => clearInterval(textInterval));
+              fetch(
+                "https://gwud4lb2g8.execute-api.ap-northeast-2.amazonaws.com/dev?category=" +
+                  paramValue,
+                requestOptions
+              )
+                .then((response) => response.text())
+                .then((result) => getResult(result))
+                .catch((error) => alert("오류\n\n" + error))
+                .finally(() => clearInterval(textInterval));
+            };
+
+            reader.readAsDataURL(file); // 파일을 Data URL로 읽기
+          } else {
+            alert("이미지를 선택해주세요.");
+            return;
+          }
         });
 
       /* 응답 결과 출력 */

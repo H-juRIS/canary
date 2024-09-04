@@ -117,7 +117,11 @@
             "x-api-key",
             "1wTctbDP0p2MHf3J664eu4OEHxMCNmhj4IOAbdUV"
           );
-          myHeaders.append("Content-Type", "application/jpg");
+
+          const fileType = file.name.split(".").pop();
+          console.log("UPLOAD IMAGE TYPE" + fileType);
+
+          myHeaders.append("Content-Type", "image/" + fileType);
 
           const requestOptions = {
             method: "POST",

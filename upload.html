@@ -121,7 +121,7 @@
           const fileType = file.name.split(".").pop();
           console.log("UPLOAD IMAGE TYPE" + fileType);
 
-          myHeaders.append("Content-Type", "image/" + fileType);
+          myHeaders.append("Content-Type", "application/jpeg");
 
           const requestOptions = {
             method: "POST",
